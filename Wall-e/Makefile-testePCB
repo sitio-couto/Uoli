@@ -1,0 +1,22 @@
+sdpcb:
+	# Para deletar execucoes antigas
+	rm -f soul.o soul testePCB.o testePCB
+	# Para compilar e ligar o seu programa.
+	arm-eabi-as -g soul.s -o soul.o
+	arm-eabi-as -g testePCB.s -o testePCB.o
+	arm-eabi-ld soul.o -o soul -g --section-start=.iv=0x778005e0 -Ttext=0x77800700 -Tdata=0x77801800 -e 0x778005e0
+	arm-eabi-ld testePCB.o -o testePCB -Ttext=0x77812000 -Tdata=0x77813000
+	# Monte a imagem do cartão SD: (seu programa eh o SO)
+	mksd.sh --so soul --user testePCB
+
+player:
+	# Antes de iniciar o simulador, você precisa abrir uma sessão do Player em outro terminal (faca o source aqui tambem)
+	player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg
+
+mainrun:
+	# Abra o simulador armsim_player com suporte ao GDB no primeiro terminal
+	armsim_player --rom=/home/specg12-1/mc404/simulador/simulador_player/bin/dumboot.bin --sd=disk.img -g
+
+gdbrun:
+	# No terceiro terminal, conecte no simulador utilizando o GDB (faca source aqui tambem)
+	arm-eabi-gdb soul
